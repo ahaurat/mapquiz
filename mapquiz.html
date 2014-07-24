@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>CSUN Map Quiz</title>
+  <meta charset=utf-8>
+
+	<!-- include jQuery -->
+	<script src="packages/js/jquery-1.11.1.min.js"></script>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+	<!-- My stylesheet for this site -->
+	<link rel="stylesheet" href="css/haurat.css">
+
+	<!-- My stylesheet for this page -->
+	<link rel="stylesheet" href="css/mapquiz.css">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+	<!-- Get mobile version to show on high res mobile and also disable zooming due to double tapping-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+	<!-- Import 'Lato' font -->
+	<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'> 
+
+	<link rel="shortcut icon" href="resources/faviconwhite.ico">
+
+	<!-- Google Maps API -->
+	<script type="text/javascript"
+	src="https://maps.googleapis.com/maps/api/js?sensor=false">
+	</script>
+
+	<script type="text/javascript">
+
+		var count=0, 
+		    correct=0,
+		    position=0;
+		var map,
+			interval;
+		var done = false;
+		var quizStarted = false;
+		var halfway = (window.innerWidth / 2);
+		var locations = new Array();
+		var rectangles = new Array(); 
+		
+		var locNames = [
+			"Oviatt Library", 
+			"Jacaranda Hall", 
+			"Citrus Hall", 
+			"Sequoia Hall", 
+			"Sierra Quad",
+		];
+		var oviatt, 
+			jacaranda, 
+			citrusHall, 
+			src, 
+			sierraQuad;
+
+		function doubleClicked(e) {
+			if (quizStarted) {
+				if (count>0){
+					hideRectangle(rectangles[count-1]);
+				}
+				// alert("Hi you double-clicked at latitude " + e.latLng.lat() + 
+				// 			" and longitude " + e.latLng.lng() + " :-)");
+
+				//check if user clicked the correct spot based upon lat/long value
+				if (clickedCorrectly(e, count)){
+					correct++;
+					$('#response').html("You got question #" + (count+1) + " Right!");
+					showRectangle(rectangles[count], "green");
+				}
+				else{
+					$('#response').html("You got question #" + (count+1) + " Wrong!");
+					showRectangle(rectangles[count], "red");
+				}
+				//cycle to the next quiz question
+				if (count<locNames.length-1){
+					$('#question').html((count+2) + ") Double Click "+ locNames[count+1]);
+				}
+				//All quiz questions have been asked
+				else {
+					$('#question').html("You finished the quiz!");
+					$('#quizScore').html("You scored " + correct + " out of a possible " 
+						+(locNames.length) + " correct!");
+					startAnimation();
+				}
+				count++;
+			}	
+			e.preventDefault();
+		}
+
+		function clickedCorrectly(e, count){
+			
+			var lat = parseFloat(e.latLng.lat());
+			var lng = parseFloat(e.latLng.lng());
+
+			// return true if user clicks correctly
+			if (lat<= locations[count][0] && lat >= locations[count][2]){
+				if (lng>= locations[count][1] && lng <= locations[count][3]){
+					return true;
+				}	
+			}
+			return false;
+		} 
+
+		function setLocations(){
+			oviatt = [34.24042695141913, -118.53004574775696, 
+						34.23954148956716, -118.52862669155002];
+			jacaranda = [34.242014550932176, -118.52940201759338, 
+						34.241021196083864, -118.52782487869263];
+			citrusHall = [34.239176363122866, -118.52864027023315, 
+						34.23892801713674, -118.5276210308075];
+			sequoiaHall = [34.24079207243923, -118.52841211482882,
+						34.24012687109673, -118.52753235027194];
+			sierraQuad = [34.23911076589909, -118.52969169616699,
+						34.237886766921214, -118.5289192199707];
+
+			locations = [oviatt, jacaranda, citrusHall, sequoiaHall, sierraQuad];
+		}
+
+		function createRectangles(locations){
+			for(var i=0; i<locations.length; i++){
+				var rectangle = new google.maps.Rectangle({
+				    visible: false,
+				    strokeOpacity: 0.8,
+				    strokeWeight: 4,
+				    fillColor: "",
+				    fillOpacity: 0,
+				    map: map,
+				    bounds: new google.maps.LatLngBounds(
+				    		new google.maps.LatLng(locations[i][0], locations[i][1]),
+				    		new google.maps.LatLng(locations[i][2], locations[i][3]))
+				});
+				rectangles.push(rectangle);
+			}
+		}
+
+		function showRectangle(rectangle, color){
+			rectangle.setOptions({
+				strokeColor: color,
+				visible: true
+			});
+		}
+
+		function hideRectangle(rectangle){
+			rectangle.setOptions({
+				visible: false
+			});
+		}
+
+		function startAnimation() {
+			//call animateResults every milisecond?
+			console.log("startAnimation() called");
+			interval = window.setInterval("animateResults()", 1);
+		}
+
+		function stopAnimation() {
+			window.clearInterval(interval);
+			console.log("stopAnimation() called");
+		}
+
+		function animateResults() {
+			position+=2;
+			console.log("animateResults() called");
+			console.log("position = " + position);
+			if ((position-200) < halfway) {
+				$('#quizScore').css("margin-left", (position-400) + "px");
+			}
+			else {
+				stopAnimation();
+			}
+		}
+
+		$(document).ready( function() {
+			$("#question").hide();
+			$("#location").hide();
+
+			$("#startButton").click(function() {
+				quizStarted = true;
+				$("#startButton").hide();
+				$("#question").show();
+				$("#location").show();
+			});
+
+			var mapOptions = {
+				zoom: 17,
+				center: new google.maps.LatLng(34.2405, -118.5294),
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				draggable: false, 
+				zoomControl: false, 
+				panControl: false,
+				scrollwheel: false,
+				streetViewControl: false, 
+				disableDoubleClickZoom: true,
+				styles: [{
+					featureType: "all",
+					elementType: "labels",
+					stylers: [
+					{ visibility: "off" }
+					]
+				}]
+			};
+
+			map = new google.maps.Map(document.getElementById("map-canvas"), 
+				mapOptions);
+
+			google.maps.event.addListener(map, 'dblclick', doubleClicked);
+			setLocations();
+			createRectangles(locations);
+			$("#question").html((count+1) + ") Double Click "+ locNames[count]);
+		}); 
+ 
+	</script>
+</head>
+
+<body>
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" id="nameLogo" href="hello">A<span class="smaller">DRIAN</span> H<span class="smaller">AURAT</span></a>
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<!-- <li><a href="hello">HOME</a></li> -->
+					<li><a href="emailer">EMAILER</a></li>
+					<li><a href="rps">RPS</a></li>
+					<li class="active"><a href="mapquiz">MAP QUIZ</a></li>
+					<li><a href="android">ANDROID</a></li>
+					<li><a href="resume">RESUME</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="contact">CONTACT</a></li>
+					<span id="loginOrOut"></span>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</div><!-- /.container-fluid -->
+	</nav>
+	<div id="colorBar"></div>
+
+	<div id="quizBox">
+		<h2>Map Quiz
+			<br>
+			<span class="thinner">California State University Northridge</span>
+		</h2>
+		<p class="subtext">Eager to test your map skills?</p>
+		<button id="startButton" class="btn primary-btn">Start Quiz</button>
+		<span id="response"></span>
+		<br>
+		<span id="question"> 1) Double Click <span id="location">Oviatt Library</span></span>
+	</div>
+	<div id="quizScore">Filler Text</div>
+	<br>
+	<div id="map-canvas"></div>
+</body>
+</html>
