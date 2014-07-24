@@ -5,22 +5,14 @@
   	<meta charset=utf-8>
 
 	<!-- include jQuery -->
-	<script src="packages/js/jquery-1.11.1.min.js"></script>
+	<script src="js/jquery-1.11.1.min.js"></script>
 
-	<!-- Latest compiled and minified CSS -->
+	<!-- Latest compiled and minified Bootstrap CSS and JavaScript -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-
-	<!-- Optional theme -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
-
-	<!-- My stylesheet for this site -->
-	<link rel="stylesheet" href="css/haurat.css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 
 	<!-- My stylesheet for this page -->
-	<link rel="stylesheet" href="css/mapquiz.css">
-
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="mapquiz.css">
 
 	<!-- Get mobile version to show on high res mobile and also disable zooming due to double tapping-->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -28,15 +20,11 @@
 	<!-- Import 'Lato' font -->
 	<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'> 
 
-	<link rel="shortcut icon" href="resources/faviconwhite.ico">
-
 	<!-- Google Maps API -->
-	<script type="text/javascript"
-	src="https://maps.googleapis.com/maps/api/js?sensor=false">
-	</script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
 
+	<!--Javascript functions-->
 	<script type="text/javascript">
-
 		var count=0, 
 		    correct=0,
 		    position=0;
@@ -56,7 +44,7 @@
 			"Sierra Quad",
 		];
 		var oviatt, 
-			jacaranda, 
+		    jacaranda, 
 			citrusHall, 
 			src, 
 			sierraQuad;
@@ -66,9 +54,17 @@
 				if (count>0){
 					hideRectangle(rectangles[count-1]);
 				}
-				// alert("Hi you double-clicked at latitude " + e.latLng.lat() + 
-				// 			" and longitude " + e.latLng.lng() + " :-)");
-
+				
+				/*
+				* Uncomment the code below to get gps coordinates for creating new 
+				* mapquiz locations and rectangles!
+				*/
+				
+				/*
+				alert("Hi you double-clicked at latitude " + e.latLng.lat() + 
+				 			" and longitude " + e.latLng.lng() + " :-)");
+				*/
+				
 				//check if user clicked the correct spot based upon lat/long value
 				if (clickedCorrectly(e, count)){
 					correct++;
@@ -220,38 +216,6 @@
 </head>
 
 <body>
-	<nav class="navbar navbar-default" role="navigation">
-		<div class="container-fluid">
-			<!-- Brand and toggle get grouped for better mobile display -->
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" id="nameLogo" href="hello">A<span class="smaller">DRIAN</span> H<span class="smaller">AURAT</span></a>
-			</div>
-
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
-					<!-- <li><a href="hello">HOME</a></li> -->
-					<li><a href="emailer">EMAILER</a></li>
-					<li><a href="rps">RPS</a></li>
-					<li class="active"><a href="mapquiz">MAP QUIZ</a></li>
-					<li><a href="android">ANDROID</a></li>
-					<li><a href="resume">RESUME</a></li>
-				</ul>
-				<ul class="nav navbar-nav navbar-right">
-					<li><a href="contact">CONTACT</a></li>
-					<span id="loginOrOut"></span>
-				</ul>
-			</div><!-- /.navbar-collapse -->
-		</div><!-- /.container-fluid -->
-	</nav>
-	<div id="colorBar"></div>
-
 	<div id="quizBox">
 		<h2>Map Quiz
 			<br>
