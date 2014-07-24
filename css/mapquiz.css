@@ -15,8 +15,7 @@ h2   {
 	margin-bottom: 20px;
 	z-index: -1;
 	position: absolute;
-	top: 53px;
-
+	top: 0;
 }
 
 #quizBox {
